@@ -102,3 +102,22 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# MATLAB:
+*.asv
+*.prj
+*.mex*
+*.csv
+*.mat
+
+# Keras/Tensorflow
+*.h5
+*.pb
+*.data*
+*.meta
+*.index
+*checkpoint*
+codegen/
+
+# Idea Xmls:
+.idea/
