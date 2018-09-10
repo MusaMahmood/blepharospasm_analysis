@@ -24,7 +24,7 @@ import tf_shared_k as tfs
 # Instance Normalization: https://arxiv.org/abs/1701.02096
 
 # Setup:
-TRAIN = False
+TRAIN = True
 TEST = True
 SAVE_PREDICTIONS = True
 ALL = False
@@ -35,10 +35,10 @@ VERSION_NUMBER = 3
 DATASET = 'k' + str(VERSION_NUMBER)
 
 batch_size = 128
-epochs = 50
+epochs = 100
 
 num_channels = 1
-num_classes = 2
+num_classes = 3
 
 learn_rate = 0.0002
 
