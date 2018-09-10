@@ -28,22 +28,21 @@ TRAIN = False
 TEST = True
 SAVE_PREDICTIONS = True
 ALL = False
-TEMP = False
 SAVE_HIDDEN_LAYERS = False
 EXPORT_OPT_BINARY = True
 
-VERSION_NUMBER = 2
+VERSION_NUMBER = 3
 DATASET = 'k' + str(VERSION_NUMBER)
 
 batch_size = 128
 epochs = 50
 
 num_channels = 1
-num_classes = 4
+num_classes = 2
 
 learn_rate = 0.0002
 
-description = DATASET + '_bleph_annotate_v'
+description = DATASET + '_bleph_annotate'
 keras_model_name = description + '.h5'
 model_dir = tfs.prep_dir('model_exports/')
 keras_file_location = model_dir + keras_model_name
@@ -58,12 +57,13 @@ y_shape = [seq_length, num_classes]
 start_time_ms = tfs.current_time_ms()
 
 # Load Data:
-x_tt, y_tt = tfs.load_data_v2('data_labeled2/_all/', [seq_length, 1], [seq_length, num_classes], 'X', 'Y')
+x_tt, y_tt = tfs.load_data_v2('data_labeled_3c/_all/', [seq_length, 1], [seq_length, num_classes], 'X', 'Y')
 
 if num_channels < 2:
     x_tt = np.reshape(x_tt[:, :, 0], [-1, seq_length, 1])
 
 x_train, x_test, y_train, y_test = train_test_split(x_tt, y_tt, train_size=0.75, random_state=1)
+
 
 def build_annotator(input_channels=1, output_channels=1):
     def conv_layer(layer_input, filters, kernel_size=5, strides=2):
@@ -126,9 +126,9 @@ with tf.device('/gpu:0'):
                 y_prob = model.predict(x_test)
                 y_prob_maximized = tfs.maximize_output_probabilities(y_prob)
                 ypshape = y_prob.shape
-                y_prob2 = np.argmax(np.reshape(y_prob_maximized, [ypshape[0]*ypshape[1], ypshape[2]]), axis=1)
+                y_prob2 = np.argmax(np.reshape(y_prob_maximized, [ypshape[0] * ypshape[1], ypshape[2]]), axis=1)
                 y_test_shape = y_test.shape
-                y_test2 = np.argmax(np.reshape(y_test, [y_test_shape[1]*y_test_shape[0], y_test_shape[2]]), axis=1)
+                y_test2 = np.argmax(np.reshape(y_test, [y_test_shape[1] * y_test_shape[0], y_test_shape[2]]), axis=1)
                 confusion = confusion_matrix(y_test2, y_prob2)
                 print(confusion)
         else:
@@ -162,11 +162,6 @@ with tf.device('/gpu:0'):
             yy_predicted = tfs.maximize_output_probabilities(yy_probabilities)
             data_dict = {'x_val': x_tt, 'y_val': y_tt, 'y_prob': yy_probabilities, 'y_out': yy_predicted}
             savemat(tfs.prep_dir(output_folder) + description + '_all.mat', mdict=data_dict)
-        if TEMP:
-            yy_probabilities = model.predict(x_sample, batch_size=batch_size)
-            yy_predicted = tfs.maximize_output_probabilities(yy_probabilities)
-            data_dict = {'x_val': x_sample, 'y_val': y_sample, 'y_prob': yy_probabilities, 'y_out': yy_predicted}
-            savemat(tfs.prep_dir(output_folder) + description + '_temp.mat', mdict=data_dict)
 
     # TODO: Save hidden Layers
     print('Elapsed Time (ms): ', tfs.current_time_ms() - start_time_ms)

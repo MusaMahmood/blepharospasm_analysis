@@ -27,7 +27,7 @@ def ind2vec(x, dimensions=3, number_classes=None):
 num_classes = 1
 seq_length = 2000
 input_length = seq_length
-dir_x = 'data_labeled2/'
+dir_x = 'data_labeled_3c/'
 file_location = prep_dir(dir_x + '_all/') + 'all_data.mat'  # Output Directory
 key_x = 'X'
 key_y = 'Y'

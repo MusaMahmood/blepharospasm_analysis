@@ -22,7 +22,7 @@ labels{4} = zeros(length(set4), 1);
 %%% RECORDED WITH BIORADIO %%%
     % APRAXIA %
 set5 = csvread('dataset\Patient1_apraxia_severe.csv'); set5 = set5(1:89730, 1);
-labels{5} = 3*ones(89730, 1);
+labels{5} = 2*ones(89730, 1);
     % PATHOLOGICAL BLINKING %
 set6 = csvread('dataset\Patient2_increased_blink.csv'); set6 = -set6(:, 1);
 labels{6} = 1*ones(length(set6), 1);
@@ -49,6 +49,8 @@ labels{11}(2956:end) = 2;
 
 data_combined = {set1, set2, set3, set4, set5, set6, set7, set8, set9, set10, set11};
 L = cell2mat(labels');
+L2 = full(ind2vec((L+1)'))';
+class_samples = sum(L2, 1)
 %% Window Out Everything:
 for d = 1:length(data_combined)
     set = data_combined{d};
@@ -72,7 +74,7 @@ for d = 1:length(data_combined)
     Yp2pmax(d) = max(Yp2p);
     if SAVE
         relevant_data = windows_raw;
-        out_d = 'ml_bleph/data_labeled2/';
+        out_d = '../data_labeled_3c/';
         mkdir(out_d); 
         fn = ['set', num2str(d), '.mat'];
         save([out_d, fn], 'relevant_data', 'Y'); clear relevant_data windows_raw Y
