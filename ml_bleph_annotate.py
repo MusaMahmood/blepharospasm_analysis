@@ -8,7 +8,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from keras.backend import tensorflow_backend as tf_backend
-from keras.layers import Conv1D, LeakyReLU, Input, Concatenate
+from keras.layers import Conv1D, Input, Concatenate, LeakyReLU
 from keras.layers import Dropout
 from keras.layers.convolutional import UpSampling1D
 from keras.models import Model, load_model
@@ -16,7 +16,6 @@ from keras.optimizers import Adam
 from keras_contrib.layers.normalization import InstanceNormalization
 from scipy.io import savemat
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
 
 import tf_shared_k as tfs
 
@@ -40,7 +39,7 @@ epochs = 100
 num_channels = 1
 num_classes = 3
 
-learn_rate = 0.0002
+learn_rate = 0.00005  # 0.0002
 
 description = DATASET + '_bleph_annotate'
 keras_model_name = description + '.h5'
@@ -124,25 +123,13 @@ with tf.device('/gpu:0'):
                 score, acc = model.evaluate(x_test, y_test, batch_size=128, verbose=1)
                 print('Test score: {} , Test accuracy: {}'.format(score, acc))
                 y_prob = model.predict(x_test)
-                y_prob_maximized = tfs.maximize_output_probabilities(y_prob)
-                ypshape = y_prob.shape
-                y_prob2 = np.argmax(np.reshape(y_prob_maximized, [ypshape[0] * ypshape[1], ypshape[2]]), axis=1)
-                y_test_shape = y_test.shape
-                y_test2 = np.argmax(np.reshape(y_test, [y_test_shape[1] * y_test_shape[0], y_test_shape[2]]), axis=1)
-                confusion = confusion_matrix(y_test2, y_prob2)
-                print(confusion)
+                tfs.print_confusion_matrix(y_prob, y_test)
         else:
             if TEST and model is not None:
                 score, acc = model.evaluate(x_test, y_test, batch_size=128, verbose=1)
                 print('Test score: {} , Test accuracy: {}'.format(score, acc))
                 y_prob = model.predict(x_test)
-                y_prob_maximized = tfs.maximize_output_probabilities(y_prob)
-                ypshape = y_prob.shape
-                y_prob2 = np.argmax(np.reshape(y_prob_maximized, [ypshape[0] * ypshape[1], ypshape[2]]), axis=1)
-                y_test_shape = y_test.shape
-                y_test2 = np.argmax(np.reshape(y_test, [y_test_shape[1] * y_test_shape[0], y_test_shape[2]]), axis=1)
-                confusion = confusion_matrix(y_test2, y_prob2)
-                print(confusion)
+                tfs.print_confusion_matrix(y_prob, y_test)
             else:
                 print('This should never happen: model does not exist')
                 exit(-1)
