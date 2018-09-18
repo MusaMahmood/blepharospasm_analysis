@@ -1,5 +1,5 @@
 clr;
-Fs = 250; PLOT = 0; SAVE = 1;
+Fs = 250; PLOT = 0; SAVE = 0;
 [b, a] = butter(3, 1*2/Fs, 'high');
 %{  
     Labels:
@@ -21,13 +21,16 @@ set4 = csvread('dataset\musa_normal\EOGData_2018.09.10_13.02.37_250Hz.csv'); set
 labels{4} = zeros(length(set4), 1);
 %%% RECORDED WITH BIORADIO %%%
     % APRAXIA %
-set5 = csvread('dataset\Patient1_apraxia_severe.csv'); set5 = set5(1:89730, 1);
+set5 = csvread('dataset\Patient1_apraxia_severe.csv'); set5 = -set5(1:89730, 1);
 labels{5} = 2*ones(89730, 1);
+
     % PATHOLOGICAL BLINKING %
 set6 = csvread('dataset\Patient2_increased_blink.csv'); set6 = -set6(:, 1);
 labels{6} = 1*ones(length(set6), 1);
-set7 = csvread('dataset\Patient3_increased_blink.csv'); set7 = set7(:, 1);
+set7 = csvread('dataset\Patient3_increased_blink.csv'); set7 = -set7(:, 1);
 labels{7} = 1*ones(length(set7), 1);
+fset6 = filtfilt(b, a, set6);
+fset7 = filtfilt(b, a, set7);
 %%% RECORDED WITH nRF/ADS1292 %%%
     % EYE SPASM (SIMULATED)
         % INTENSITY LEVEL 1 %
@@ -52,7 +55,7 @@ L = cell2mat(labels');
 L2 = full(ind2vec((L+1)'))';
 class_samples = sum(L2, 1)
 %% Window Out Everything:
-for d = 1:length(data_combined)
+for d = 5:7 %  1:length(data_combined)
     set = data_combined{d};
     whop = Fs*1; wlen = Fs*8; wStart = 1:whop:(length(set)-wlen); wEnd = wStart + wlen - 1;
     Y = zeros(length(wStart), wlen, 1);
@@ -61,17 +64,29 @@ for d = 1:length(data_combined)
     for w = 1:length(wStart)
         fprintf('[%d, %d/%d ] \n', d, w, length(wStart));
         filt_sig = filtfilt(b, a, set(wStart(w):wEnd(w), 1));
+        %%%
+        single_data = single(rescale_minmax(filt_sig));
+        %%%
         Yp2p(w) = get_p2p(set(wStart(w):wEnd(w), 1));
         windows_raw(w, :, 1) = rescale_minmax(filt_sig);
         Y(w, :, :) = labels{d}( wStart(w):wEnd(w) );
+        [Q(w)] = get_intensity(single_data);
+        blinks = count_blinks(single_data)
+        % Check labels
+        % Run HJ's code- 
         if PLOT
             figure(1); subplot(2,1,1);plot(squeeze(windows_raw(w, :, 1)));
             subplot(2,1,2); plot(squeeze(Y(w, :, :)));
             con = input('Continue ?\n');
         end
+        mean_q(d) = mean(Q);
+        max_q(d) = max(Q);
+        min_q(d) = min(Q);
     end
+    figure; hold on; plot(min_q); plot(max_q); plot(mean_q);
     Yp2pmin(d) = min(Yp2p);
     Yp2pmax(d) = max(Yp2p);
+    clear Q
     if SAVE
         relevant_data = windows_raw;
         out_d = '../data_labeled_3c/';
