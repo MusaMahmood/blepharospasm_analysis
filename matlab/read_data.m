@@ -5,6 +5,7 @@
     2 - Apraxia (severe)
     3 - Eyes forced closed.
 %}
+addpath('bleph_fcns\');
 clr;
 Fs = 250; PLOT = 0; SAVE = 0;
 [bh, ah] = butter(3, 1*2/Fs, 'high');

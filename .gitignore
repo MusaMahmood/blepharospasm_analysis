@@ -121,3 +121,6 @@ codegen/
 
 # Idea Xmls:
 .idea/
+
+# Data folder: 
+matlab/dataset/

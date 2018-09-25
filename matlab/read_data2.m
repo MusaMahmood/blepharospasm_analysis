@@ -1,4 +1,5 @@
-clr;
+% clr;
+addpath('bleph_fcns\');
 Fs = 250; PLOT = 0; SAVE = 0;
 [b, a] = butter(3, 1*2/Fs, 'high');
 %{  
@@ -45,6 +46,7 @@ set10 = csvread('dataset\spasm2.csv'); set10 = set10(:, 1);
 labels{10} = zeros(length(set10), 1);
 labels{10}(1:2814) = 0;
 labels{10}(2814:end) = 2;
+figure(5); subplot(2, 1, 1); plot(filtfilt(b, a, set10)); xlim([0, length(set10)]); title('EOG Data'); subplot(2, 1, 2); plot(labels{10}); title('Temporal Labels'); xlim([0, length(set10)]); 
 set11 = csvread('dataset\spasm5.csv'); set11 = set11(:, 1);
 labels{11} = zeros(length(set11), 1);
 labels{11}(1:2955) = 0;

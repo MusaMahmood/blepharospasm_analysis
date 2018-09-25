@@ -1,17 +1,17 @@
 clr;
-% load('mit_ecg_annotate_gan_lr0.0002_r0\mit_ecg_annotate_gan_lr0.0002_r0.mat');
-% load('k_bleph_annotate\k_bleph_annotate_all.mat');
-load('k_bleph_annotate\k_bleph_annotate_temp.mat');
-TEMP = csvread('EOG_classify_2018.09.06_13.38.14_250Hz.csv');
-TEMP2 = TEMP(1:2000, 2:5);
-TEMP3 = TEMP2(:);
+% load('k_bleph_annotate\k_bleph_annotate_temp.mat');
+% load('k2_bleph_annotate\k2_bleph_annotate_v.mat');
+load('k3_bleph_annotate\k3_bleph_annotate.mat');
+% TEMP = csvread('EOG_classify_2018.09.06_13.38.14_250Hz.csv');
+% TEMP2 = TEMP(1:2000, 2:5);
+% TEMP3 = TEMP2(:);
 % for i = 1:2000
 %     for j = 1:4
 %         tfout(i, j) = TEMP3((i-1)*4 + j);
 %     end
 % end
-T3_r = rearrange_4c(single(TEMP3));
-[index, scores] = get_class_bleph(T3_r);
+% T3_r = rearrange_4c(single(TEMP3));
+% [index, scores] = get_class_bleph(T3_r);
 % %{
 CH1_ONLY = size(x_val, 3) - 1; 
 PLOT = 0;
@@ -21,8 +21,13 @@ samples = size(y_val, 1);
 number_classes = size(y_val, 3);
 
 %%% TEMP:
-y_val = zeros(8, 2000, 4);
-number_classes =4;
+tmp = zeros(2000, 3);
+tmp_rrng = rearrange_3c(single(tmp));
+tmp4 = zeros(2000, 4);
+tmp_rrng4 = rearrange_4c(single(tmp4));
+tmp5 = single(zeros(2000, 5));
+tmp_rrng5 = rearrange_5c(tmp5);
+tmp_getc = get_class_distribution(tmp5);
 
 if exist('x_val', 'var')
     ytrue_all = vec2ind(reshape(y_val, [samples*2000,number_classes])' );
@@ -44,10 +49,10 @@ if exist('x_val', 'var')
 %             PLOT = 1;
         end
         clear b yy yt
-%         A = squeeze(y_prob(s, :, :));
-%         [I, scores] = get_class_bleph(A(:));
-%         disp(scores);
-%         disp(I);
+        A = squeeze(y_out(s, :, :));
+        [I, scores] = get_class_bleph(A);
+        disp(scores);
+        disp(I);
         if PLOT
 %             PLOT = 0;
             sample = squeeze(x_val(s, :, :));
